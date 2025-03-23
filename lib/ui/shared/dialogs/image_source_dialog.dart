@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 class ImageSourceDialog extends StatelessWidget {
   const ImageSourceDialog({super.key});
 
-  Future<T?> show<T>(BuildContext context) =>
-      showDialog(context: context, builder: (context) => this);
+  static Future<bool?> show(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => const ImageSourceDialog(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

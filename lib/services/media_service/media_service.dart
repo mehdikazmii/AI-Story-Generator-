@@ -13,29 +13,69 @@ class MediaService extends IMediaService {
   @override
   Future<File?> pickImage({required bool fromGallery}) async {
     try {
-      final XFile? image = await _picker.pickImage(
-          source: fromGallery ? ImageSource.gallery : ImageSource.camera);
-      if (image == null) return null;
-      final file = File(image.path);
+      _log.d(
+          'Attempting to pick image from ${fromGallery ? 'gallery' : 'camera'}');
+
+      final source = fromGallery ? ImageSource.gallery : ImageSource.camera;
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        imageQuality: 70,
+      );
+
+      if (pickedFile == null) {
+        _log.d('No image was selected');
+        return null;
+      }
+
+      _log.d('Image picked successfully: ${pickedFile.path}');
+      final file = File(pickedFile.path);
+
+      if (!await file.exists()) {
+        throw Failure(message: 'Selected image file does not exist');
+      }
+
+      final fileSize = await file.length();
+      if (fileSize == 0) {
+        throw Failure(message: 'Selected image file is empty');
+      }
 
       return file;
-    } on Exception catch (e) {
-      _log.e(e);
-      throw Failure(message: 'Error selecting image', data: e);
+    } on Failure {
+      rethrow;
+    } catch (e, stack) {
+      _log.e('Error picking image', error: e, stackTrace: stack);
+      throw Failure(message: 'Failed to pick image. Please try again.');
     }
   }
 
   @override
   Future<File?> pickVideo({required bool fromGallery}) async {
     try {
-      final XFile? image = await _picker.pickVideo(
-          source: fromGallery ? ImageSource.gallery : ImageSource.camera);
-      if (image == null) return null;
+      _log.d(
+          'Starting video pick process from: ${fromGallery ? 'gallery' : 'camera'}');
 
-      final file = File(image.path);
+      final XFile? video = await _picker.pickVideo(
+        source: fromGallery ? ImageSource.gallery : ImageSource.camera,
+      );
+
+      if (video == null) {
+        _log.d('No video was selected');
+        return null;
+      }
+
+      _log.d('Video picked successfully at path: ${video.path}');
+
+      final file = File(video.path);
+      if (!await file.exists()) {
+        _log.e('Selected video file does not exist at path: ${video.path}');
+        throw Failure(message: 'Selected video file not found');
+      }
+
       return file;
-    } on Exception catch (e) {
-      _log.e(e);
+    } on Failure {
+      rethrow;
+    } catch (e, s) {
+      _log.e('Error picking video', error: e, stackTrace: s);
       throw Failure(message: 'Error selecting video', data: e);
     }
   }

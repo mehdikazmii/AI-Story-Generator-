@@ -4,10 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../_shared.dart';
 
 class UploadImageCard extends StatelessWidget {
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   const UploadImageCard({
     Key? key,
-    required this.onTap,
+    this.onTap,
   }) : super(key: key);
 
   @override

@@ -19,9 +19,13 @@ class ItemData {
   }
 
   factory ItemData.fromMap(Map<String, dynamic> map) {
+    if (!map.containsKey('name')) {
+      throw FormatException('Missing required field: name');
+    }
+
     return ItemData(
-      name: map['name'] ?? '',
-      description: map['description'],
+      name: map['name']?.toString() ?? '',
+      description: map['description']?.toString(),
     );
   }
 
@@ -29,4 +33,7 @@ class ItemData {
 
   factory ItemData.fromJson(String source) =>
       ItemData.fromMap(json.decode(source));
+
+  @override
+  String toString() => 'ItemData(name: $name, description: $description)';
 }
